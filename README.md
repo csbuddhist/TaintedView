@@ -110,8 +110,8 @@ python tools/build_books.py --src RAW --out TMP --md-out books # 把原始书稿
 ```jsonc
 // books/catalog.json
 { "version": 1, "books": [
-  { "id": "b49c70f01", "title": "跳出色情陷阱", "lang": "zh-Hans", "category": "戒邪淫书籍",
-    "subCategory": "…", "chars": 171349, "chapters": 18, "path": "戒邪淫书籍/000跳出色情陷阱" } ] }
+  { "id": "b31a412a9", "title": "寿康宝鉴", "lang": "zh-Hans", "category": "戒邪淫书籍",
+    "subCategory": "…", "chars": 49132, "chapters": 3, "path": "戒邪淫书籍/001寿康宝鉴" } ] }
 
 // <书>/_app/book.json
 { "id": "…", "title": "…", "origin": "原始文件名", "chars": 171349,
