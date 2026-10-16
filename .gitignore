@@ -1,0 +1,22 @@
+# Regenerated output outside the canonical books/ source tree.
+/build/
+
+# Local editor settings and generated files.
+/.claude/*
+!/.claude/launch.json
+/.idea/
+/.vscode/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Future Flutter/Android signing secrets.
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+key.properties

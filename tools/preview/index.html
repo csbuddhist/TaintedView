@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>书稿阅读预览</title>
+<!--
+  本地预览页：读取 books/catalog.json 与各书 _app/*.json，按章节顺序自动生成目录与翻页。
+  启动：在项目根目录运行  python -m http.server 8765  然后打开 http://localhost:8765/tools/preview/
+-->
+<style>
+  :root {
+    --bg: #fbfaf7; --surface: #ffffff; --text: #2b2a28; --muted: #8a857c; --line: #e8e4dc;
+    --accent: #8a5a2b; --accent-soft: #f3e9dc; --speak: #fff3c4;
+    --font-ui: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    /* 阅读设置（由 JS 覆盖） */
+    --read-font: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+    --read-size: 19px; --read-lh: 1.9; --read-para: 0.8em; --read-ls: 0.02em;
+    --read-indent: 2em; --read-measure: 38em;
+  }
+  :root[data-theme="sepia"] {
+    --bg: #f4ecd8; --surface: #f8f1e0; --text: #4a3b28; --muted: #8f7d62; --line: #e3d6b8;
+    --accent: #8a5a2b; --accent-soft: #eadcbc; --speak: #f0dc9a;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1b1a18; --surface: #232220; --text: #d6d1c7; --muted: #8b867d; --line: #34322e;
+    --accent: #d6a26b; --accent-soft: #3a3127; --speak: #4a4022;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --bg: #1b1a18; --surface: #232220; --text: #d6d1c7; --muted: #8b867d; --line: #34322e;
+      --accent: #d6a26b; --accent-soft: #3a3127; --speak: #4a4022;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-ui); }
+  button, select, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: var(--accent); }
+
+  /* 顶栏 */
+  header {
+    position: sticky; top: 0; z-index: 20; height: 52px; display: flex; align-items: center; gap: 8px;
+    padding: 0 16px; background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+  }
+  header .title { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  header .title small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+  .icon-btn {
+    border: 1px solid transparent; background: none; border-radius: 8px; height: 34px; min-width: 34px;
+    padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; color: var(--text);
+  }
+  .icon-btn:hover { background: var(--accent-soft); }
+  .icon-btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+  .hidden { display: none !important; }
+
+  /* 书架 */
+  #library { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+  #library h2 { font-size: 15px; color: var(--muted); font-weight: 500; margin: 28px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .card {
+    text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px; display: flex; flex-direction: column; gap: 8px; min-height: 112px;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card .t { font-family: var(--read-font); font-size: 17px; font-weight: 600; line-height: 1.4; }
+  .card .m { font-size: 12px; color: var(--muted); margin-top: auto; }
+  .card .resume { font-size: 12px; color: var(--accent); }
+
+  /* 阅读 */
+  #reader { display: flex; }
+  #toc {
+    position: sticky; top: 52px; height: calc(100vh - 52px); width: 300px; flex: none; overflow: auto;
+    border-right: 1px solid var(--line); padding: 12px 8px 40px; font-size: 14px; background: var(--bg);
+  }
+  #toc ul { list-style: none; margin: 0; padding-left: 12px; }
+  #toc > ul { padding-left: 0; }
+  #toc a, #toc .group {
+    display: block; padding: 6px 10px; border-radius: 6px; color: var(--text); text-decoration: none; line-height: 1.45;
+  }
+  #toc .group { color: var(--muted); font-size: 13px; }
+  #toc a:hover { background: var(--accent-soft); }
+  #toc a.current { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  main { flex: 1; min-width: 0; padding: 32px 16px 120px; }
+  article {
+    max-width: var(--read-measure); margin: 0 auto; font-family: var(--read-font); font-size: var(--read-size);
+    line-height: var(--read-lh); letter-spacing: var(--read-ls); text-align: justify;
+  }
+  article .blk { margin: 0 0 var(--read-para); border-radius: 4px; transition: background .2s; scroll-margin: 120px; }
+  article p.blk { text-indent: var(--read-indent); }
+  article h1, article h2, article h3, article h4 { line-height: 1.4; letter-spacing: 0.04em; text-align: left; text-indent: 0; }
+  article h1 { font-size: 1.5em; margin: 0.4em 0 1.2em; }
+  article h2 { font-size: 1.25em; margin: 1.6em 0 0.8em; }
+  article h3, article h4 { font-size: 1.08em; margin: 1.4em 0 0.6em; }
+  article blockquote { margin-left: 0; padding-left: 1em; border-left: 3px solid var(--line); color: var(--muted); }
+  article li.blk { list-style: none; position: relative; padding-left: 1.2em; }
+  article li.blk::before { content: "·"; position: absolute; left: 0.3em; }
+  article figure { margin: 1.2em 0; text-align: center; }
+  article img { max-width: 100%; height: auto; border-radius: 6px; }
+  article pre { white-space: pre-wrap; font-size: 0.85em; }
+  article .speaking { background: var(--speak); }
+  body.tts-on article .blk[data-say] { cursor: pointer; }
+
+  .pager { max-width: var(--read-measure); margin: 48px auto 0; display: flex; gap: 12px; font-family: var(--font-ui); }
+  .pager button {
+    flex: 1; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  }
+  .pager button.next { text-align: right; }
+  .pager button:hover:not(:disabled) { border-color: var(--accent); }
+  .pager button:disabled { opacity: .35; cursor: default; }
+  .pager small { color: var(--muted); font-size: 12px; }
+  .pager span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chapter-meta { max-width: var(--read-measure); margin: 0 auto 8px; color: var(--muted); font-size: 12px; }
+
+  /* 浮层面板 */
+  .panel {
+    position: fixed; z-index: 30; right: 16px; top: 60px; width: 320px; max-width: calc(100vw - 32px);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.12); font-size: 14px;
+  }
+  .row { display: grid; grid-template-columns: 72px 1fr 48px; align-items: center; gap: 8px; margin: 10px 0; }
+  .row output { text-align: right; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .row input[type=range] { width: 100%; accent-color: var(--accent); }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; grid-column: 2 / 4; }
+  .seg button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 4px 10px; font-size: 13px; }
+  .seg button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .panel .foot { display: flex; justify-content: space-between; margin-top: 12px; }
+  .panel .foot button { border: none; background: none; color: var(--muted); font-size: 13px; }
+
+  /* 朗读条 */
+  #ttsbar {
+    position: fixed; z-index: 25; left: 50%; bottom: 20px; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px;
+    display: flex; align-items: center; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.14); font-size: 13px;
+    max-width: calc(100vw - 32px);
+  }
+  #ttsbar select { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 4px; max-width: 160px; }
+  #ttsbar .hint { color: var(--muted); padding: 0 6px; white-space: nowrap; }
+
+  @media (max-width: 860px) {
+    #toc { position: fixed; z-index: 15; left: 0; top: 52px; box-shadow: 4px 0 24px rgba(0,0,0,.15); width: min(300px, 85vw); }
+    #ttsbar .hint { display: none; }
+  }
+  .empty { color: var(--muted); padding: 48px 0; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <button class="icon-btn hidden" id="btn-home" title="返回书架">‹ 书架</button>
+  <button class="icon-btn hidden" id="btn-toc" title="目录" aria-pressed="true">☰</button>
+  <div class="title" id="title">书稿阅读预览</div>
+  <button class="icon-btn hidden" id="btn-tts" title="朗读 (从当前位置)">▶ 朗读</button>
+  <button class="icon-btn" id="btn-settings" title="阅读设置">Aa</button>
+</header>
+
+<section id="library"></section>
+
+<section id="reader" class="hidden">
+  <nav id="toc" aria-label="目录"></nav>
+  <main>
+    <div class="chapter-meta" id="chapter-meta"></div>
+    <article id="article"></article>
+    <div class="pager" id="pager"></div>
+  </main>
+</section>
+
+<div class="panel hidden" id="settings" role="dialog" aria-label="阅读设置">
+  <div class="row"><span>字体</span><div class="seg" id="seg-font"></div></div>
+  <div class="row"><span>主题</span><div class="seg" id="seg-theme"></div></div>
+  <div class="row"><label for="s-size">字号</label><input id="s-size" type="range" min="14" max="30" step="1"><output></output></div>
+  <div class="row"><label for="s-lh">行距</label><input id="s-lh" type="range" min="1.3" max="2.6" step="0.1"><output></output></div>
+  <div class="row"><label for="s-para">段距</label><input id="s-para" type="range" min="0" max="2" step="0.1"><output></output></div>
+  <div class="row"><label for="s-ls">字距</label><input id="s-ls" type="range" min="0" max="0.2" step="0.01"><output></output></div>
+  <div class="row"><label for="s-indent">首行缩进</label><input id="s-indent" type="range" min="0" max="3" step="1"><output></output></div>
+  <div class="row"><label for="s-measure">版心宽度</label><input id="s-measure" type="range" min="24" max="60" step="1"><output></output></div>
+  <div class="foot"><button id="btn-reset">恢复默认</button><button id="btn-close-settings">完成</button></div>
+</div>
+
+<div id="ttsbar" class="hidden" role="toolbar" aria-label="朗读控制">
+  <button class="icon-btn" id="tts-prev" title="上一段">⏮</button>
+  <button class="icon-btn" id="tts-toggle" title="暂停/继续">⏸</button>
+  <button class="icon-btn" id="tts-next" title="下一段">⏭</button>
+  <select id="tts-rate" title="语速">
+    <option value="0.8">0.8×</option><option value="1" selected>1.0×</option><option value="1.2">1.2×</option>
+    <option value="1.5">1.5×</option><option value="1.8">1.8×</option>
+  </select>
+  <select id="tts-voice" title="音色"></select>
+  <span class="hint">点击段落可从该处朗读</span>
+  <button class="icon-btn" id="tts-stop" title="停止">✕</button>
+</div>
+
+<script>
+"use strict";
+const BOOKS_ROOT = new URL("../../books/", location.href);
+const $ = (s) => document.querySelector(s);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("tv." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("tv." + k, JSON.stringify(v)); } catch {} },
+};
+
+/* ------------------------------------------------------------ 阅读设置 */
+const FONTS = {
+  serif: { label: "宋体", css: '"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",serif',
+           href: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&display=swap" },
+  wenkai: { label: "霞鹜文楷", css: '"LXGW WenKai","KaiTi","STKaiti",serif',
+            href: "https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" },
+  kai: { label: "楷体", css: '"KaiTi","STKaiti","BiauKai",serif' },
+  sans: { label: "黑体", css: '"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif' },
+};
+const THEMES = { auto: "跟随系统", light: "白", sepia: "护眼", dark: "夜间" };
+const DEFAULTS = { font: "serif", theme: "auto", size: 19, lh: 1.9, para: 0.8, ls: 0.02, indent: 2, measure: 38 };
+let S = { ...DEFAULTS, ...store.get("settings", {}) };
+const loadedFonts = new Set();
+
+function applySettings() {
+  const r = document.documentElement.style;
+  const f = FONTS[S.font] || FONTS.serif;
+  if (f.href && !loadedFonts.has(f.href)) {
+    loadedFonts.add(f.href);
+    const l = document.createElement("link"); l.rel = "stylesheet"; l.href = f.href; document.head.append(l);
+  }
+  r.setProperty("--read-font", f.css);
+  r.setProperty("--read-size", S.size + "px");
+  r.setProperty("--read-lh", S.lh);
+  r.setProperty("--read-para", S.para + "em");
+  r.setProperty("--read-ls", S.ls + "em");
+  r.setProperty("--read-indent", S.indent + "em");
+  r.setProperty("--read-measure", S.measure + "em");
+  if (S.theme === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", S.theme);
+  for (const [id, key, fmt] of SLIDERS) {
+    const el = $(id); el.value = S[key]; el.nextElementSibling.textContent = fmt(S[key]);
+  }
+  document.querySelectorAll("#seg-font button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.font));
+  document.querySelectorAll("#seg-theme button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.theme));
+  store.set("settings", S);
+}
+const SLIDERS = [
+  ["#s-size", "size", v => v + "px"], ["#s-lh", "lh", v => (+v).toFixed(1)], ["#s-para", "para", v => (+v).toFixed(1) + "em"],
+  ["#s-ls", "ls", v => (+v).toFixed(2)], ["#s-indent", "indent", v => v + "字"], ["#s-measure", "measure", v => v + "字"],
+];
+function initSettings() {
+  for (const [k, f] of Object.entries(FONTS)) $("#seg-font").insertAdjacentHTML("beforeend", `<button data-v="${k}">${f.label}</button>`);
+  for (const [k, t] of Object.entries(THEMES)) $("#seg-theme").insertAdjacentHTML("beforeend", `<button data-v="${k}">${t}</button>`);
+  $("#seg-font").onclick = e => { if (e.target.dataset.v) { S.font = e.target.dataset.v; applySettings(); } };
+  $("#seg-theme").onclick = e => { if (e.target.dataset.v) { S.theme = e.target.dataset.v; applySettings(); } };
+  for (const [id, key] of SLIDERS) $(id).oninput = e => { S[key] = +e.target.value; applySettings(); };
+  $("#btn-settings").onclick = () => $("#settings").classList.toggle("hidden");
+  $("#btn-close-settings").onclick = () => $("#settings").classList.add("hidden");
+  $("#btn-reset").onclick = () => { S = { ...DEFAULTS }; applySettings(); };
+  applySettings();
+}
+
+/* ------------------------------------------------------------ 数据 */
+let catalog = null;
+const bookCache = new Map(), chapterCache = new Map();
+// no-cache：重跑 build_books.py 后刷新页面即可看到新内容
+const fetchJSON = (url) => fetch(url, { cache: "no-cache" }).then(r => { if (!r.ok) throw new Error(r.status + " " + url); return r.json(); });
+const bookBase = (b) => new URL(b.path.split("/").map(encodeURIComponent).join("/") + "/_app/", BOOKS_ROOT);
+
+async function getBook(id) {
+  if (!bookCache.has(id)) {
+    const entry = catalog.books.find(b => b.id === id);
+    if (!entry) throw new Error("找不到书籍 " + id);
+    const book = await fetchJSON(new URL("book.json", bookBase(entry)));
+    book.base = bookBase(entry);
+    book.index = Object.fromEntries(book.chapters.map((c, i) => [c.id, i]));
+    bookCache.set(id, book);
+  }
+  return bookCache.get(id);
+}
+async function getChapter(book, cid) {
+  const key = book.id + "/" + cid;
+  if (!chapterCache.has(key)) chapterCache.set(key, await fetchJSON(new URL(`chapters/${cid}.json`, book.base)));
+  return chapterCache.get(key);
+}
+
+/* ------------------------------------------------------------ 渲染 */
+const esc = (s) => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function inline(text, book) {
+  return esc(text)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, href) => {
+      if (href.startsWith("chapter:")) return `<a href="#/b/${book.id}/${href.slice(8)}">${t}</a>`;
+      const url = /^https?:/.test(href) ? href : new URL(href, book.base).href;
+      return `<a href="${url}" target="_blank" rel="noopener">${t}</a>`;
+    });
+}
+const plain = (text) => text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+
+function renderLibrary() {
+  stopTTS();
+  document.body.dataset.view = "library";
+  $("#reader").classList.add("hidden"); $("#library").classList.remove("hidden");
+  ["#btn-home", "#btn-toc", "#btn-tts"].forEach(s => $(s).classList.add("hidden"));
+  $("#title").innerHTML = `书稿阅读预览<small>${catalog.books.length} 本</small>`;
+  document.title = "书稿阅读预览";
+  const groups = {};
+  for (const b of catalog.books) (groups[b.category] ||= []).push(b);
+  const progress = store.get("progress", {});
+  $("#library").innerHTML = Object.entries(groups).map(([cat, list]) => `
+    <h2>${esc(cat)}</h2>
+    <div class="grid">${list.map(b => {
+      const p = progress[b.id];
+      return `<button class="card" data-id="${b.id}">
+        <span class="t">${esc(b.title)}</span>
+        ${p ? `<span class="resume">继续阅读 · ${esc(p.title || "")}</span>` : ""}
+        <span class="m">${b.chapters} 章 · ${(b.chars / 10000).toFixed(1)} 万字</span>
+      </button>`;
+    }).join("")}</div>`).join("");
+  window.scrollTo(0, 0);
+}
+
+function renderToc(book, cid) {
+  const walk = (nodes) => `<ul>${nodes.map(n => `<li>${
+    n.chapter ? `<a href="#/b/${book.id}/${n.chapter}" data-cid="${n.chapter}">${esc(n.title)}</a>`
+              : `<span class="group">${esc(n.title)}</span>`
+  }${n.children ? walk(n.children) : ""}</li>`).join("")}</ul>`;
+  if ($("#toc").dataset.book !== book.id) {
+    $("#toc").innerHTML = walk(book.toc);
+    $("#toc").dataset.book = book.id;
+  }
+  $("#toc").querySelectorAll("a.current").forEach(a => a.classList.remove("current"));
+  const cur = $("#toc").querySelector(`a[data-cid="${cid}"]`);
+  if (cur) { cur.classList.add("current"); cur.scrollIntoView({ block: "nearest" }); }
+}
+
+let current = null;   // { book, chapter, idx }
+async function openChapter(bookId, cid, blockId) {
+  const book = await getBook(bookId);
+  cid = cid && cid in book.index ? cid : book.chapters[0].id;
+  const chapter = await getChapter(book, cid);
+  const idx = book.index[cid];
+  current = { book, chapter, idx };
+
+  document.body.dataset.view = "reader";
+  $("#library").classList.add("hidden"); $("#reader").classList.remove("hidden");
+  ["#btn-home", "#btn-toc", "#btn-tts"].forEach(s => $(s).classList.remove("hidden"));
+  $("#title").innerHTML = `${esc(book.title)}<small>${esc(chapter.title)}</small>`;
+  document.title = `${chapter.title} · ${book.title}`;
+  if (window.innerWidth <= 860) setToc(false);
+  renderToc(book, cid);
+
+  const meta = book.chapters[idx];
+  $("#chapter-meta").textContent = `第 ${idx + 1} / ${book.chapters.length} 章 · ${meta.chars.toLocaleString()} 字 · 约 ${Math.max(1, Math.round(meta.chars / 400))} 分钟`;
+  $("#article").innerHTML = chapter.blocks.map((b, i) => {
+    const say = b.text && b.t !== "img" && b.t !== "pre" ? ` data-say="${i}"` : "";
+    const attrs = `class="blk" id="${b.id}"${say}`;
+    switch (b.t) {
+      case "h": { const l = Math.min(Math.max(b.level || 2, 1), 4); return `<h${l} ${attrs}>${inline(b.text, book)}</h${l}>`; }
+      case "li": return `<li ${attrs}>${inline(b.text, book)}</li>`;
+      case "quote": return `<blockquote ${attrs}>${inline(b.text, book)}</blockquote>`;
+      case "img": return `<figure class="blk" id="${b.id}"><img loading="lazy" src="${new URL(b.src, book.base).href}" alt="${esc(b.text || "")}"></figure>`;
+      case "pre": return `<pre ${attrs}>${esc(b.text || "")}</pre>`;
+      default: return `<p ${attrs}>${inline(b.text || "", book)}</p>`;
+    }
+  }).join("");
+
+  const prev = book.chapters[idx - 1], next = book.chapters[idx + 1];
+  $("#pager").innerHTML = `
+    <button class="prev" ${prev ? `data-cid="${prev.id}"` : "disabled"}><small>← 上一章</small><span>${prev ? esc(prev.title) : "已是第一章"}</span></button>
+    <button class="next" ${next ? `data-cid="${next.id}"` : "disabled"}><small>下一章 →</small><span>${next ? esc(next.title) : "全书完"}</span></button>`;
+
+  const target = blockId && document.getElementById(blockId);
+  if (target) target.scrollIntoView({ block: "start" }); else window.scrollTo(0, 0);
+  saveProgress();
+}
+
+function go(cid) { if (current && cid) location.hash = `#/b/${current.book.id}/${cid}`; }
+function setToc(open) {
+  $("#toc").classList.toggle("hidden", !open);
+  $("#btn-toc").setAttribute("aria-pressed", open);
+}
+
+/* 阅读进度：记录视口顶部附近的段落 */
+let saveTimer = 0;
+function firstVisibleBlock() {
+  for (const el of document.querySelectorAll("#article .blk")) {
+    if (el.getBoundingClientRect().bottom > 80) return el;
+  }
+  return null;
+}
+function saveProgress() {
+  if (!current) return;
+  const el = firstVisibleBlock();
+  const all = store.get("progress", {});
+  all[current.book.id] = { cid: current.chapter.id, block: el && el.id, title: current.chapter.title };
+  store.set("progress", all);
+}
+addEventListener("scroll", () => { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 400); }, { passive: true });
+
+/* ------------------------------------------------------------ 朗读（Web Speech API） */
+const synth = window.speechSynthesis;
+const tts = { on: false, paused: false, i: 0, chunks: [], ci: 0, token: 0 };
+let voices = [];
+
+function loadVoices() {
+  if (!synth) return;
+  const all = synth.getVoices();
+  voices = all.filter(v => /^zh/i.test(v.lang));
+  if (!voices.length) voices = all;
+  const saved = store.get("voice", "");
+  $("#tts-voice").innerHTML = voices.map((v, i) =>
+    `<option value="${i}" ${v.name === saved ? "selected" : ""}>${esc(v.name.replace(/^Microsoft |Online \(Natural\) - /g, ""))}</option>`).join("")
+    || `<option>无可用中文语音</option>`;
+}
+function splitSentences(text) {
+  // Chrome 对过长的单次朗读容易中断，按句切成 ≤120 字的片段
+  const parts = text.match(/[^。！？；!?;]+[。！？；!?;”」』）)]*|.+$/g) || [text];
+  const out = []; let buf = "";
+  for (const p of parts) {
+    if ((buf + p).length > 120 && buf) { out.push(buf); buf = ""; }
+    buf += p;
+    while (buf.length > 120) { out.push(buf.slice(0, 120)); buf = buf.slice(120); }
+  }
+  if (buf.trim()) out.push(buf);
+  return out;
+}
+function sayables() { return [...document.querySelectorAll("#article [data-say]")]; }
+
+function startTTS(fromEl) {
+  if (!synth) { alert("当前浏览器不支持语音合成"); return; }
+  const list = sayables();
+  if (!list.length) return;
+  tts.on = true; tts.paused = false;
+  tts.i = Math.max(0, list.indexOf(fromEl || firstVisibleBlock()?.closest("[data-say]") || list[0]));
+  document.body.classList.add("tts-on");
+  $("#ttsbar").classList.remove("hidden");
+  $("#btn-tts").setAttribute("aria-pressed", "true");
+  $("#tts-toggle").textContent = "⏸";
+  speakBlock();
+}
+function speakBlock() {
+  const list = sayables();
+  document.querySelectorAll("#article .speaking").forEach(e => e.classList.remove("speaking"));
+  if (tts.i >= list.length) {      // 本章读完，自动进入下一章
+    const next = current.book.chapters[current.idx + 1];
+    if (next) { tts.autoNext = true; go(next.id); } else stopTTS();
+    return;
+  }
+  const el = list[tts.i];
+  el.classList.add("speaking");
+  const r = el.getBoundingClientRect();
+  if (r.top < 60 || r.bottom > innerHeight - 90) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  const block = current.chapter.blocks[+el.dataset.say];
+  tts.chunks = splitSentences(plain(block.text));
+  tts.ci = 0;
+  speakChunk(++tts.token);
+}
+function speakChunk(token) {
+  if (!tts.on || token !== tts.token) return;
+  if (tts.ci >= tts.chunks.length) { tts.i++; speakBlock(); return; }
+  const u = new SpeechSynthesisUtterance(tts.chunks[tts.ci]);
+  u.lang = "zh-CN";
+  const v = voices[+$("#tts-voice").value]; if (v) u.voice = v;
+  u.rate = +$("#tts-rate").value;
+  u.onend = () => { if (token === tts.token) { tts.ci++; speakChunk(token); } };
+  u.onerror = (e) => { if (token === tts.token && e.error !== "interrupted" && e.error !== "canceled") { tts.ci++; speakChunk(token); } };
+  synth.speak(u);
+}
+function jumpTTS(i) {
+  synth.cancel(); tts.token++;
+  tts.i = Math.max(0, i); tts.paused = false; $("#tts-toggle").textContent = "⏸";
+  setTimeout(speakBlock, 50);
+}
+function stopTTS() {
+  if (!tts.on) return;
+  tts.on = false; tts.token++; synth && synth.cancel();
+  document.body.classList.remove("tts-on");
+  document.querySelectorAll("#article .speaking").forEach(e => e.classList.remove("speaking"));
+  $("#ttsbar").classList.add("hidden");
+  $("#btn-tts").setAttribute("aria-pressed", "false");
+}
+function initTTS() {
+  if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+  $("#btn-tts").onclick = () => tts.on ? stopTTS() : startTTS();
+  $("#tts-stop").onclick = stopTTS;
+  $("#tts-prev").onclick = () => jumpTTS(tts.i - 1);
+  $("#tts-next").onclick = () => jumpTTS(tts.i + 1);
+  $("#tts-toggle").onclick = () => {
+    if (tts.paused) { synth.resume(); tts.paused = false; $("#tts-toggle").textContent = "⏸"; }
+    else { synth.pause(); tts.paused = true; $("#tts-toggle").textContent = "▶"; }
+  };
+  $("#tts-rate").onchange = () => jumpTTS(tts.i);
+  $("#tts-voice").onchange = () => { const v = voices[+$("#tts-voice").value]; v && store.set("voice", v.name); jumpTTS(tts.i); };
+  $("#article").addEventListener("click", (e) => {
+    if (!tts.on || e.target.closest("a")) return;
+    const el = e.target.closest("[data-say]");
+    if (el) jumpTTS(sayables().indexOf(el));
+  });
+  addEventListener("beforeunload", () => synth && synth.cancel());
+}
+
+/* ------------------------------------------------------------ 路由与事件 */
+async function route() {
+  const m = location.hash.match(/^#\/b\/([^/]+)(?:\/([^/?]+))?/);
+  try {
+    if (!m) { renderLibrary(); return; }
+    let [, bookId, cid] = m;
+    let block = null;
+    if (!cid) { const p = store.get("progress", {})[bookId]; if (p) { cid = p.cid; block = p.block; } }
+    const continuing = tts.on && tts.autoNext;
+    if (tts.on && !continuing) stopTTS();
+    await openChapter(bookId, cid, block);
+    if (continuing) { tts.autoNext = false; tts.i = 0; speakBlock(); }
+  } catch (err) {
+    console.error(err);
+    $("#library").classList.remove("hidden"); $("#reader").classList.add("hidden");
+    $("#library").innerHTML = `<p class="empty">加载失败：${esc(String(err.message || err))}</p>`;
+  }
+}
+
+async function main() {
+  initSettings(); initTTS();
+  $("#btn-home").onclick = () => { location.hash = ""; };
+  $("#btn-toc").onclick = () => setToc($("#toc").classList.contains("hidden"));
+  $("#pager").onclick = (e) => { const b = e.target.closest("button[data-cid]"); if (b) go(b.dataset.cid); };
+  $("#library").onclick = (e) => { const c = e.target.closest(".card"); if (c) location.hash = `#/b/${c.dataset.id}`; };
+  $("#toc").addEventListener("click", (e) => { if (e.target.closest("a") && innerWidth <= 860) setToc(false); });
+  addEventListener("keydown", (e) => {
+    if (document.body.dataset.view !== "reader" || e.target.closest("input,select")) return;
+    if (e.key === "ArrowLeft") go(current.book.chapters[current.idx - 1]?.id);
+    if (e.key === "ArrowRight") go(current.book.chapters[current.idx + 1]?.id);
+  });
+  addEventListener("hashchange", route);
+  try {
+    catalog = await fetchJSON(new URL("catalog.json", BOOKS_ROOT));
+  } catch (err) {
+    $("#library").innerHTML = `<p class="empty">读取 books/catalog.json 失败。请先运行 <code>python tools/build_books.py</code>，并在项目根目录用 <code>python -m http.server</code> 启动后访问本页。</p>`;
+    return;
+  }
+  route();
+}
+main();
+</script>
+</body>
+</html>
