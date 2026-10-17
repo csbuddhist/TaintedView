@@ -20,3 +20,6 @@ __pycache__/
 *.pem
 *.key
 key.properties
+
+# App 书稿资源由 app/tool/sync_books.py 从 books/ 生成。
+/app/assets/data/
