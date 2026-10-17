@@ -35,13 +35,19 @@ python3 --version               # 运行书稿预处理脚本需要 Python 3.10 
 brew install --cask zulu@17
 ```
 
+`zulu@17` 安装时需要输入管理员密码。没有密码或在非交互环境下，可以改用不需要 sudo 的 Homebrew 版本：
+
+```bash
+brew install openjdk@17
+```
+
 ## 3. 环境变量（含国内镜像）
 
 把下面几行追加到 `~/.zshrc`，然后执行 `source ~/.zshrc`：
 
 ```bash
 # JDK
-export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || echo /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home)"
 
 # Flutter 国内镜像
 export PUB_HOSTED_URL="https://pub.flutter-io.cn"
@@ -77,7 +83,7 @@ mv cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
 3. 安装 SDK 组件并接受许可：
 
 ```bash
-sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"   # Flutter 3.47 起要求 Android SDK 36
 flutter config --android-sdk "$ANDROID_HOME"
 flutter doctor --android-licenses      # 全部输入 y
 flutter doctor                          # Android toolchain 一项应显示 ✓
@@ -85,7 +91,7 @@ flutter doctor                          # Android toolchain 一项应显示 ✓
 
 > 构建时如果提示缺少其他平台版本或 NDK，Gradle 会自动下载，前提是已经接受过许可。
 
-## 6. Gradle 国内镜像（项目创建后配置一次）
+## 6. Gradle 国内镜像（项目创建后配置一次，`app/` 已配置）
 
 `flutter create` 生成的安卓工程默认从 Google 和 Maven Central 下载依赖。国内网络下建议做下面两处修改。
 
@@ -109,10 +115,11 @@ repositories {
 
 ## 7. 打包 APK
 
-App 工程计划放在仓库的 `app/` 目录（0.1 版开发中）。打包前先刷新书稿数据：
+App 工程在仓库的 `app/` 目录，第 6 步的 Gradle 镜像已经配置好。打包前先把书稿同步成 App 资源：
 
 ```bash
 python3 tools/build_books.py           # 重新生成 books/ 下的 JSON 和书目
+python3 app/tool/sync_books.py         # 打包到 app/assets/data/，并刷新 pubspec.yaml 的 assets 清单
 cd app
 flutter pub get
 flutter build apk --release --split-per-abi
