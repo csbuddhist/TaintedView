@@ -39,6 +39,12 @@ class _SkeletonScreenState extends State<SkeletonScreen> {
     _web = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..addJavaScriptChannel('Bones', onMessageReceived: _onMessage)
+      ..setOnConsoleMessage((m) => debugPrint('skeleton: ${m.level.name} ${m.message}'))
+      ..setNavigationDelegate(NavigationDelegate(
+        onWebResourceError: (e) {
+          if (e.isForMainFrame ?? true) setState(() => _error = e.description);
+        },
+      ))
       ..loadFlutterAsset('assets/skeleton/index.html');
     rootBundle.loadString('assets/skeleton/bones.json').then((s) {
       if (mounted) setState(() => _names = parseBoneNames(s));
