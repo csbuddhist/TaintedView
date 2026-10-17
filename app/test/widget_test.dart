@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taintedview/data/models.dart';
 import 'package:taintedview/data/prefs.dart';
 import 'package:taintedview/data/repository.dart';
+import 'package:taintedview/data/speech.dart';
 import 'package:taintedview/main.dart';
 import 'package:taintedview/screens/skeleton_screen.dart';
 import 'package:taintedview/widgets/rich_text.dart';
@@ -62,5 +63,20 @@ void main() {
     expect(names.length, greaterThan(200));
     expect(names['FMA24486']?.zh, '右髌骨');
     expect(names.values.where((b) => b.zh.isEmpty || b.en.isEmpty), isEmpty);
+  });
+
+  test('朗读文本去掉内联标记，图片不读', () {
+    expect(speakableText(Block(id: '1', t: 'p', text: '前文**重点**看[第五章](chapter:c005)。')), '前文重点看第五章。');
+    expect(speakableText(Block(id: '2', t: 'img', src: 'a.jpg')), '');
+  });
+
+  test('splitForSpeech 按句切分且不超过上限', () {
+    expect(splitForSpeech('一二三。四五六！七八'), ['一二三。四五六！七八']);
+    expect(splitForSpeech('一二三。四五六！七八', max: 5), ['一二三。', '四五六！', '七八']);
+    final long = '字' * 23;
+    final parts = splitForSpeech(long, max: 10);
+    expect(parts.join(), long);
+    expect(parts.every((p) => p.length <= 10), isTrue);
+    expect(splitForSpeech('  '), isEmpty);
   });
 }

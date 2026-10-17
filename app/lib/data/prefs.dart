@@ -18,6 +18,7 @@ class ReaderSettings extends ChangeNotifier {
         _lineHeight = _prefs.getDouble('lineHeight') ?? 1.8,
         _paragraphGap = _prefs.getDouble('paragraphGap') ?? 14,
         _indent = _prefs.getBool('indent') ?? true,
+        _speechSpeed = _prefs.getDouble('speechSpeed') ?? 1.0,
         _theme = ReaderTheme.values.asNameMap()[_prefs.getString('theme')] ?? ReaderTheme.system;
 
   final SharedPreferences _prefs;
@@ -25,12 +26,16 @@ class ReaderSettings extends ChangeNotifier {
   double _lineHeight;
   double _paragraphGap;
   bool _indent;
+  double _speechSpeed;
   ReaderTheme _theme;
 
   double get fontSize => _fontSize;
   double get lineHeight => _lineHeight;
   double get paragraphGap => _paragraphGap;
   bool get indent => _indent;
+
+  /// 朗读倍速，1.0 为正常语速。
+  double get speechSpeed => _speechSpeed;
   ReaderTheme get theme => _theme;
 
   set fontSize(double v) {
@@ -54,6 +59,12 @@ class ReaderSettings extends ChangeNotifier {
   set indent(bool v) {
     _indent = v;
     _prefs.setBool('indent', v);
+    notifyListeners();
+  }
+
+  set speechSpeed(double v) {
+    _speechSpeed = v;
+    _prefs.setDouble('speechSpeed', v);
     notifyListeners();
   }
 

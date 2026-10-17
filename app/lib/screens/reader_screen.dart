@@ -8,11 +8,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../app_scope.dart';
 import '../data/models.dart';
 import '../data/prefs.dart';
+import '../data/speech.dart';
 import '../widgets/reader_settings_sheet.dart';
 import '../widgets/rich_text.dart';
 import '../widgets/toc_view.dart';
 
 /// 章节阅读页：按段落块渲染，自动保存阅读位置，章末可翻到上一章/下一章。
+/// 朗读时逐段调用系统 TTS，高亮并跟随当前段落，读完一章自动接下一章。
 class ReaderScreen extends StatefulWidget {
   const ReaderScreen({
     super.key,
@@ -32,12 +34,22 @@ class ReaderScreen extends StatefulWidget {
 class _ReaderScreenState extends State<ReaderScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _positions = ItemPositionsListener.create();
+  final _scroll = ItemScrollController();
+  final _speaker = Speaker();
   late String _cid = widget.chapterId;
   late int _initialBlock = widget.initialBlock;
   Future<Chapter>? _chapter;
   int _visibleBlock = 0;
   Timer? _saveTimer;
   late ProgressStore _progress;
+
+  /// 正在朗读的段落；null 表示没在朗读。
+  int? _speakingBlock;
+  int _speakingPart = 0;
+  bool _paused = false;
+
+  /// 每次开始、暂停、停止都加一，旧的朗读循环看到编号变了就退出。
+  int _run = 0;
 
   Book get book => widget.book;
 
@@ -60,6 +72,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
     _positions.itemPositions.removeListener(_onScroll);
     _saveTimer?.cancel();
     _save();
+    _run++;
+    _speaker.stop();
     super.dispose();
   }
 
@@ -83,8 +97,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   void _save() => _progress.save(book.id, _cid, _visibleBlock);
 
-  void _goTo(String cid, {int block = 0}) {
+  void _goTo(String cid, {int block = 0, bool keepSpeaking = false}) {
     if (book.indexOf(cid) < 0) return;
+    if (!keepSpeaking) _stopSpeaking();
     _saveTimer?.cancel();
     setState(() {
       _cid = cid;
@@ -92,6 +107,95 @@ class _ReaderScreenState extends State<ReaderScreen> {
       _visibleBlock = block;
       _chapter = _load(cid);
     });
+  }
+
+  void _toast(String text) =>
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(text)));
+
+  Future<void> _startSpeaking() async {
+    if (!await _speaker.prepare()) {
+      if (mounted) _toast('没有找到中文语音，请在系统设置的“文字转语音”里安装中文语音包');
+      return;
+    }
+    if (!mounted) return;
+    await _speaker.setSpeed(AppScope.of(context).settings.speechSpeed);
+    _speakFrom(_visibleBlock, 0);
+  }
+
+  Future<void> _speakFrom(int block, int part) async {
+    final run = ++_run;
+    setState(() {
+      _paused = false;
+      _speakingBlock = block;
+      _speakingPart = part;
+    });
+    final blocks = (await _chapter!).blocks;
+    for (var i = block; i < blocks.length; i++) {
+      final parts = splitForSpeech(speakableText(blocks[i]));
+      if (parts.isEmpty) continue;
+      if (run != _run || !mounted) return;
+      setState(() => _speakingBlock = i);
+      _follow(i);
+      for (var j = i == block ? part : 0; j < parts.length; j++) {
+        _speakingPart = j;
+        final done = await _speaker.speak(parts[j]);
+        if (run != _run || !mounted) return;
+        if (!done) {
+          _stopSpeaking();
+          _toast('朗读出错，已停止');
+          return;
+        }
+      }
+    }
+    if (run != _run || !mounted) return;
+    final index = book.indexOf(_cid);
+    if (index < book.chapters.length - 1) {
+      _goTo(book.chapters[index + 1].id, keepSpeaking: true);
+      _speakFrom(0, 0);
+    } else {
+      _stopSpeaking();
+      _toast('全书已读完');
+    }
+  }
+
+  /// 当前段落不在屏幕内时滚动过去。
+  void _follow(int i) {
+    final visible = _positions.itemPositions.value
+        .any((p) => p.index == i && p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
+    if (!visible && _scroll.isAttached) {
+      _scroll.scrollTo(index: i, alignment: 0.15, duration: const Duration(milliseconds: 300));
+    }
+  }
+
+  void _pauseSpeaking() {
+    _run++;
+    _speaker.stop();
+    setState(() => _paused = true);
+  }
+
+  void _stopSpeaking() {
+    if (_speakingBlock == null) return;
+    _run++;
+    _speaker.stop();
+    setState(() {
+      _speakingBlock = null;
+      _paused = false;
+    });
+  }
+
+  Future<void> _cycleSpeed(ReaderSettings settings) async {
+    final i = speechSpeeds.indexOf(settings.speechSpeed);
+    final speed = speechSpeeds[(i + 1) % speechSpeeds.length];
+    settings.speechSpeed = speed;
+    await _speaker.setSpeed(speed);
+    // 新语速从下一次 speak 起生效，正在读的句子重读一遍。
+    if (_speakingBlock != null && !_paused) {
+      _run++;
+      await _speaker.stop();
+      _speakFrom(_speakingBlock!, _speakingPart);
+    }
   }
 
   void _onLink(String href) {
@@ -124,6 +228,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 onPressed: () => _scaffoldKey.currentState!.openEndDrawer(),
               ),
               IconButton(
+                tooltip: _speakingBlock == null ? '朗读' : '停止朗读',
+                icon: Icon(_speakingBlock == null ? Icons.headphones_outlined : Icons.headset_off_outlined),
+                onPressed: _speakingBlock == null ? _startSpeaking : _stopSpeaking,
+              ),
+              IconButton(
                 tooltip: '排版',
                 icon: const Icon(Icons.text_fields),
                 onPressed: () => showReaderSettings(context, settings),
@@ -154,6 +263,16 @@ class _ReaderScreenState extends State<ReaderScreen> {
               ),
             ),
           ),
+          bottomNavigationBar: _speakingBlock == null
+              ? null
+              : _SpeechBar(
+                  paused: _paused,
+                  speed: settings.speechSpeed,
+                  palette: palette,
+                  onPlayPause: _paused ? () => _speakFrom(_speakingBlock!, _speakingPart) : _pauseSpeaking,
+                  onSpeed: () => _cycleSpeed(settings),
+                  onStop: _stopSpeaking,
+                ),
           body: FutureBuilder<Chapter>(
             future: _chapter,
             builder: (context, snap) {
@@ -167,6 +286,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 top: false,
                 child: ScrollablePositionedList.builder(
                   key: ValueKey(_cid),
+                  itemScrollController: _scroll,
                   itemPositionsListener: _positions,
                   initialScrollIndex: _initialBlock.clamp(0, blocks.length),
                   padding: const EdgeInsets.fromLTRB(0, 8, 0, 32),
@@ -176,14 +296,25 @@ class _ReaderScreenState extends State<ReaderScreen> {
                       constraints: const BoxConstraints(maxWidth: 720),
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: i < blocks.length
-                            ? BlockView(
-                                block: blocks[i],
-                                book: book,
-                                settings: settings,
-                                palette: palette,
-                                onLink: _onLink,
+                            ? GestureDetector(
+                                // 朗读中轻点某段，从该段开始读。
+                                onTap: _speakingBlock == null ? null : () => _speakFrom(i, 0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                                  decoration: BoxDecoration(
+                                    color: i == _speakingBlock ? palette.accent.withValues(alpha: 0.12) : null,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: BlockView(
+                                    block: blocks[i],
+                                    book: book,
+                                    settings: settings,
+                                    palette: palette,
+                                    onLink: _onLink,
+                                  ),
+                                ),
                               )
                             : _ChapterNav(
                                 prev: index > 0 ? book.chapters[index - 1] : null,
@@ -336,6 +467,59 @@ class _BlockViewState extends State<BlockView> {
           ),
         );
     }
+  }
+}
+
+/// 朗读控制条：暂停/继续、倍速、停止。
+class _SpeechBar extends StatelessWidget {
+  const _SpeechBar({
+    required this.paused,
+    required this.speed,
+    required this.palette,
+    required this.onPlayPause,
+    required this.onSpeed,
+    required this.onStop,
+  });
+
+  final bool paused;
+  final double speed;
+  final ReaderPalette palette;
+  final VoidCallback onPlayPause;
+  final VoidCallback onSpeed;
+  final VoidCallback onStop;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = speed == speed.roundToDouble() ? speed.toStringAsFixed(0) : '$speed';
+    return Material(
+      color: palette.background,
+      elevation: 8,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              IconButton(
+                tooltip: paused ? '继续' : '暂停',
+                color: palette.text,
+                icon: Icon(paused ? Icons.play_arrow : Icons.pause),
+                onPressed: onPlayPause,
+              ),
+              Expanded(
+                child: Text(paused ? '已暂停' : '朗读中', style: TextStyle(color: palette.muted)),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(foregroundColor: palette.text),
+                onPressed: onSpeed,
+                child: Text('$label×'),
+              ),
+              IconButton(tooltip: '停止', color: palette.text, icon: const Icon(Icons.stop), onPressed: onStop),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
