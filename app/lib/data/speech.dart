@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../widgets/rich_text.dart';
@@ -40,6 +42,7 @@ const speechSpeeds = [0.75, 1.0, 1.25, 1.5, 2.0];
 class Speaker {
   final _tts = FlutterTts();
   Future<bool>? _ready;
+  Completer<bool>? _current;
 
   /// 是否有中文语音；没有时返回 false，界面提示用户去系统里安装。
   Future<bool> prepare() => _ready ??= () async {
@@ -54,7 +57,22 @@ class Speaker {
   Future<void> setSpeed(double speed) => _tts.setSpeechRate(speed * 0.5);
 
   /// 读完返回 true；被 [stop] 打断或出错返回 false。
-  Future<bool> speak(String text) async => await _tts.speak(text) == 1;
+  /// 安卓上合成出错（例如没有离线中文语音又没网）时，flutter_tts 只发 onError、
+  /// 不结束 speak 的 Future，所以这里自己用错误回调收尾，避免一直卡在“朗读中”。
+  Future<bool> speak(String text) async {
+    // 上一句还在读时，插件会直接拒绝新的 speak（返回 0），所以先停掉它。
+    if (_current != null && !_current!.isCompleted) await _tts.stop();
+    final result = _current = Completer<bool>();
+    _tts.setErrorHandler((_) {
+      if (!result.isCompleted) result.complete(false);
+    });
+    _tts.speak(text).then((r) {
+      if (!result.isCompleted) result.complete(r == 1);
+    }, onError: (Object _) {
+      if (!result.isCompleted) result.complete(false);
+    });
+    return result.future;
+  }
 
   Future<void> stop() => _tts.stop();
 }

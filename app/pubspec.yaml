@@ -2,7 +2,7 @@ name: taintedview
 description: "不净观资料阅读器"
 publish_to: 'none'
 
-version: 0.2.1+3
+version: 0.2.2+4
 
 environment:
   sdk: ^3.13.5

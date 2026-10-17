@@ -144,7 +144,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
         if (run != _run || !mounted) return;
         if (!done) {
           _stopSpeaking();
-          _toast('朗读出错，已停止');
+          _toast('朗读失败：没有可用的中文语音。请在系统设置的“文字转语音”里下载中文语音包，或联网后重试');
           return;
         }
       }
