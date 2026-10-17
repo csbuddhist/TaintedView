@@ -1,0 +1,13 @@
+{
+  "name": "taintedview-skeleton",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "4.1.1",
+    "esbuild": "0.24.2",
+    "three": "0.162.0"
+  }
+}

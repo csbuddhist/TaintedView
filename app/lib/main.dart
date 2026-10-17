@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_scope.dart';
 import 'data/prefs.dart';
 import 'data/repository.dart';
-import 'screens/shelf_screen.dart';
+import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +47,7 @@ class TaintedViewApp extends StatelessWidget {
             ReaderTheme.dark => ThemeMode.dark,
             _ => ThemeMode.light,
           },
-          home: const ShelfScreen(),
+          home: const HomeScreen(),
         ),
       ),
     );

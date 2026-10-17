@@ -1,0 +1,954 @@
+{
+ "FMA12519": {
+  "zh": "寰椎（第一颈椎）",
+  "en": "atlas"
+ },
+ "FMA12520": {
+  "zh": "枢椎（第二颈椎）",
+  "en": "axis"
+ },
+ "FMA7487": {
+  "zh": "胸骨体",
+  "en": "body of sternum"
+ },
+ "FMA32651": {
+  "zh": "左拇趾远节趾骨",
+  "en": "distal phalanx of left big toe"
+ },
+ "FMA32657": {
+  "zh": "左第四趾远节趾骨",
+  "en": "distal phalanx of left fourth toe"
+ },
+ "FMA23953": {
+  "zh": "左示指远节指骨",
+  "en": "distal phalanx of left index finger"
+ },
+ "FMA23959": {
+  "zh": "左小指远节指骨",
+  "en": "distal phalanx of left little finger"
+ },
+ "FMA32659": {
+  "zh": "左小趾远节趾骨",
+  "en": "distal phalanx of left little toe"
+ },
+ "FMA23955": {
+  "zh": "左中指远节指骨",
+  "en": "distal phalanx of left middle finger"
+ },
+ "FMA23957": {
+  "zh": "左环指远节指骨",
+  "en": "distal phalanx of left ring finger"
+ },
+ "FMA32653": {
+  "zh": "左第二趾远节趾骨",
+  "en": "distal phalanx of left second toe"
+ },
+ "FMA32655": {
+  "zh": "左第三趾远节趾骨",
+  "en": "distal phalanx of left third toe"
+ },
+ "FMA23951": {
+  "zh": "左拇指远节指骨",
+  "en": "distal phalanx of left thumb"
+ },
+ "FMA32650": {
+  "zh": "右拇趾远节趾骨",
+  "en": "distal phalanx of right big toe"
+ },
+ "FMA32656": {
+  "zh": "右第四趾远节趾骨",
+  "en": "distal phalanx of right fourth toe"
+ },
+ "FMA24460": {
+  "zh": "右示指远节指骨",
+  "en": "distal phalanx of right index finger"
+ },
+ "FMA24463": {
+  "zh": "右小指远节指骨",
+  "en": "distal phalanx of right little finger"
+ },
+ "FMA32658": {
+  "zh": "右小趾远节趾骨",
+  "en": "distal phalanx of right little toe"
+ },
+ "FMA24461": {
+  "zh": "右中指远节指骨",
+  "en": "distal phalanx of right middle finger"
+ },
+ "FMA24462": {
+  "zh": "右环指远节指骨",
+  "en": "distal phalanx of right ring finger"
+ },
+ "FMA32652": {
+  "zh": "右第二趾远节趾骨",
+  "en": "distal phalanx of right second toe"
+ },
+ "FMA32654": {
+  "zh": "右第三趾远节趾骨",
+  "en": "distal phalanx of right third toe"
+ },
+ "FMA24459": {
+  "zh": "右拇指远节指骨",
+  "en": "distal phalanx of right thumb"
+ },
+ "FMA9991": {
+  "zh": "第八胸椎",
+  "en": "eighth thoracic vertebra"
+ },
+ "FMA10059": {
+  "zh": "第十一胸椎",
+  "en": "eleventh thoracic vertebra"
+ },
+ "FMA52740": {
+  "zh": "筛骨",
+  "en": "ethmoid"
+ },
+ "FMA12523": {
+  "zh": "第五颈椎",
+  "en": "fifth cervical vertebra"
+ },
+ "FMA13076": {
+  "zh": "第五腰椎",
+  "en": "fifth lumbar vertebra"
+ },
+ "FMA9922": {
+  "zh": "第五胸椎",
+  "en": "fifth thoracic vertebra"
+ },
+ "FMA13072": {
+  "zh": "第一腰椎",
+  "en": "first lumbar vertebra"
+ },
+ "FMA9165": {
+  "zh": "第一胸椎",
+  "en": "first thoracic vertebra"
+ },
+ "FMA12522": {
+  "zh": "第四颈椎",
+  "en": "fourth cervical vertebra"
+ },
+ "FMA13075": {
+  "zh": "第四腰椎",
+  "en": "fourth lumbar vertebra"
+ },
+ "FMA9248": {
+  "zh": "第四胸椎",
+  "en": "fourth thoracic vertebra"
+ },
+ "FMA52734": {
+  "zh": "额骨",
+  "en": "frontal bone"
+ },
+ "FMA52749": {
+  "zh": "舌骨",
+  "en": "hyoid bone"
+ },
+ "FMA10446": {
+  "zh": "椎间盘",
+  "en": "intervertebral disk"
+ },
+ "FMA25058": {
+  "zh": "枢椎椎间盘",
+  "en": "intervertebral disk of axis"
+ },
+ "FMA13505": {
+  "zh": "第八胸椎椎间盘",
+  "en": "intervertebral disk of eighth thoracic vertebra"
+ },
+ "FMA13508": {
+  "zh": "第十一胸椎椎间盘",
+  "en": "intervertebral disk of eleventh thoracic vertebra"
+ },
+ "FMA13898": {
+  "zh": "第五颈椎椎间盘",
+  "en": "intervertebral disk of fifth cervical vertebra"
+ },
+ "FMA16037": {
+  "zh": "第五腰椎椎间盘",
+  "en": "intervertebral disk of fifth lumbar vertebra"
+ },
+ "FMA13502": {
+  "zh": "第五胸椎椎间盘",
+  "en": "intervertebral disk of fifth thoracic vertebra"
+ },
+ "FMA16033": {
+  "zh": "第一腰椎椎间盘",
+  "en": "intervertebral disk of first lumbar vertebra"
+ },
+ "FMA10458": {
+  "zh": "第一胸椎椎间盘",
+  "en": "intervertebral disk of first thoracic vertebra"
+ },
+ "FMA13897": {
+  "zh": "第四颈椎椎间盘",
+  "en": "intervertebral disk of fourth cervical vertebra"
+ },
+ "FMA16036": {
+  "zh": "第四腰椎椎间盘",
+  "en": "intervertebral disk of fourth lumbar vertebra"
+ },
+ "FMA13501": {
+  "zh": "第四胸椎椎间盘",
+  "en": "intervertebral disk of fourth thoracic vertebra"
+ },
+ "FMA13506": {
+  "zh": "第九胸椎椎间盘",
+  "en": "intervertebral disk of ninth thoracic vertebra"
+ },
+ "FMA16034": {
+  "zh": "第二腰椎椎间盘",
+  "en": "intervertebral disk of second lumbar vertebra"
+ },
+ "FMA13495": {
+  "zh": "第二胸椎椎间盘",
+  "en": "intervertebral disk of second thoracic vertebra"
+ },
+ "FMA13900": {
+  "zh": "第七颈椎椎间盘",
+  "en": "intervertebral disk of seventh cervical vertebra"
+ },
+ "FMA13504": {
+  "zh": "第七胸椎椎间盘",
+  "en": "intervertebral disk of seventh thoracic vertebra"
+ },
+ "FMA13899": {
+  "zh": "第六颈椎椎间盘",
+  "en": "intervertebral disk of sixth cervical vertebra"
+ },
+ "FMA13503": {
+  "zh": "第六胸椎椎间盘",
+  "en": "intervertebral disk of sixth thoracic vertebra"
+ },
+ "FMA13507": {
+  "zh": "第十胸椎椎间盘",
+  "en": "intervertebral disk of tenth thoracic vertebra"
+ },
+ "FMA13896": {
+  "zh": "第三颈椎椎间盘",
+  "en": "intervertebral disk of third cervical vertebra"
+ },
+ "FMA16035": {
+  "zh": "第三腰椎椎间盘",
+  "en": "intervertebral disk of third lumbar vertebra"
+ },
+ "FMA13500": {
+  "zh": "第三胸椎椎间盘",
+  "en": "intervertebral disk of third thoracic vertebra"
+ },
+ "FMA24498": {
+  "zh": "左跟骨",
+  "en": "left calcaneus"
+ },
+ "FMA24447": {
+  "zh": "左头状骨",
+  "en": "left capitate"
+ },
+ "FMA13323": {
+  "zh": "左锁骨",
+  "en": "left clavicle"
+ },
+ "FMA24529": {
+  "zh": "左骰骨",
+  "en": "left cuboid bone"
+ },
+ "FMA8310": {
+  "zh": "左第八肋",
+  "en": "left eighth rib"
+ },
+ "FMA8532": {
+  "zh": "左第十一肋",
+  "en": "left eleventh rib"
+ },
+ "FMA24475": {
+  "zh": "左股骨",
+  "en": "left femur"
+ },
+ "FMA24481": {
+  "zh": "左腓骨",
+  "en": "left fibula"
+ },
+ "FMA8112": {
+  "zh": "左第五肋软骨",
+  "en": "left fifth costal cartilage"
+ },
+ "FMA24473": {
+  "zh": "左第五掌骨",
+  "en": "left fifth metacarpal bone"
+ },
+ "FMA24516": {
+  "zh": "左第五跖骨",
+  "en": "left fifth metatarsal bone"
+ },
+ "FMA8093": {
+  "zh": "左第五肋",
+  "en": "left fifth rib"
+ },
+ "FMA8005": {
+  "zh": "左第一肋软骨",
+  "en": "left first costal cartilage"
+ },
+ "FMA24465": {
+  "zh": "左第一掌骨",
+  "en": "left first metacarpal bone"
+ },
+ "FMA24508": {
+  "zh": "左第一跖骨",
+  "en": "left first metatarsal bone"
+ },
+ "FMA7987": {
+  "zh": "左第一肋",
+  "en": "left first rib"
+ },
+ "FMA8167": {
+  "zh": "左第四肋软骨",
+  "en": "left fourth costal cartilage"
+ },
+ "FMA24471": {
+  "zh": "左第四掌骨",
+  "en": "left fourth metacarpal bone"
+ },
+ "FMA24514": {
+  "zh": "左第四跖骨",
+  "en": "left fourth metatarsal bone"
+ },
+ "FMA8148": {
+  "zh": "左第四肋",
+  "en": "left fourth rib"
+ },
+ "FMA24449": {
+  "zh": "左钩骨",
+  "en": "left hamate"
+ },
+ "FMA16587": {
+  "zh": "左髋骨",
+  "en": "left hip bone"
+ },
+ "FMA23131": {
+  "zh": "左肱骨",
+  "en": "left humerus"
+ },
+ "FMA54738": {
+  "zh": "左下鼻甲",
+  "en": "left inferior nasal concha"
+ },
+ "FMA24524": {
+  "zh": "左中间楔骨",
+  "en": "left intermediate cuneiform bone"
+ },
+ "FMA53646": {
+  "zh": "左泪骨",
+  "en": "left lacrimal bone"
+ },
+ "FMA24526": {
+  "zh": "左外侧楔骨",
+  "en": "left lateral cuneiform bone"
+ },
+ "FMA24438": {
+  "zh": "左月骨",
+  "en": "left lunate"
+ },
+ "FMA53650": {
+  "zh": "左上颌骨",
+  "en": "left maxilla"
+ },
+ "FMA24522": {
+  "zh": "左内侧楔骨",
+  "en": "left medial cuneiform bone"
+ },
+ "FMA53648": {
+  "zh": "左鼻骨",
+  "en": "left nasal bone"
+ },
+ "FMA8391": {
+  "zh": "左第九肋",
+  "en": "left ninth rib"
+ },
+ "FMA53656": {
+  "zh": "左腭骨",
+  "en": "left palatine bone"
+ },
+ "FMA52789": {
+  "zh": "左顶骨",
+  "en": "left parietal bone"
+ },
+ "FMA24487": {
+  "zh": "左髌骨",
+  "en": "left patella"
+ },
+ "FMA24442": {
+  "zh": "左豌豆骨",
+  "en": "left pisiform"
+ },
+ "FMA23465": {
+  "zh": "左桡骨",
+  "en": "left radius"
+ },
+ "FMA24436": {
+  "zh": "左手舟骨",
+  "en": "left scaphoid"
+ },
+ "FMA13396": {
+  "zh": "左肩胛骨",
+  "en": "left scapula"
+ },
+ "FMA8031": {
+  "zh": "左第二肋软骨",
+  "en": "left second costal cartilage"
+ },
+ "FMA24467": {
+  "zh": "左第二掌骨",
+  "en": "left second metacarpal bone"
+ },
+ "FMA24510": {
+  "zh": "左第二跖骨",
+  "en": "left second metatarsal bone"
+ },
+ "FMA8012": {
+  "zh": "左第二肋",
+  "en": "left second rib"
+ },
+ "FMA8275": {
+  "zh": "左第七肋软骨",
+  "en": "left seventh costal cartilage"
+ },
+ "FMA8256": {
+  "zh": "左第七肋",
+  "en": "left seventh rib"
+ },
+ "FMA8221": {
+  "zh": "左第六肋软骨",
+  "en": "left sixth costal cartilage"
+ },
+ "FMA8202": {
+  "zh": "左第六肋",
+  "en": "left sixth rib"
+ },
+ "FMA24483": {
+  "zh": "左距骨",
+  "en": "left talus"
+ },
+ "FMA52739": {
+  "zh": "左颞骨",
+  "en": "left temporal bone"
+ },
+ "FMA8472": {
+  "zh": "左第十肋",
+  "en": "left tenth rib"
+ },
+ "FMA8058": {
+  "zh": "左第三肋软骨",
+  "en": "left third costal cartilage"
+ },
+ "FMA24469": {
+  "zh": "左第三掌骨",
+  "en": "left third metacarpal bone"
+ },
+ "FMA24512": {
+  "zh": "左第三跖骨",
+  "en": "left third metatarsal bone"
+ },
+ "FMA8039": {
+  "zh": "左第三肋",
+  "en": "left third rib"
+ },
+ "FMA24478": {
+  "zh": "左胫骨",
+  "en": "left tibia"
+ },
+ "FMA24444": {
+  "zh": "左大多角骨",
+  "en": "left trapezium"
+ },
+ "FMA24445": {
+  "zh": "左小多角骨",
+  "en": "left trapezoid"
+ },
+ "FMA24440": {
+  "zh": "左三角骨",
+  "en": "left triquetral"
+ },
+ "FMA8534": {
+  "zh": "左第十二肋",
+  "en": "left twelfth rib"
+ },
+ "FMA23468": {
+  "zh": "左尺骨",
+  "en": "left ulna"
+ },
+ "FMA52893": {
+  "zh": "左颧骨",
+  "en": "left zygomatic bone"
+ },
+ "FMA52748": {
+  "zh": "下颌骨",
+  "en": "mandible"
+ },
+ "FMA7486": {
+  "zh": "胸骨柄",
+  "en": "manubrium"
+ },
+ "FMA32647": {
+  "zh": "左第四趾中节趾骨",
+  "en": "middle phalanx of left fourth toe"
+ },
+ "FMA23938": {
+  "zh": "左示指中节指骨",
+  "en": "middle phalanx of left index finger"
+ },
+ "FMA23944": {
+  "zh": "左小指中节指骨",
+  "en": "middle phalanx of left little finger"
+ },
+ "FMA230988": {
+  "zh": "左小趾中节趾骨",
+  "en": "middle phalanx of left little toe"
+ },
+ "FMA23940": {
+  "zh": "左中指中节指骨",
+  "en": "middle phalanx of left middle finger"
+ },
+ "FMA23942": {
+  "zh": "左环指中节指骨",
+  "en": "middle phalanx of left ring finger"
+ },
+ "FMA32643": {
+  "zh": "左第二趾中节趾骨",
+  "en": "middle phalanx of left second toe"
+ },
+ "FMA32645": {
+  "zh": "左第三趾中节趾骨",
+  "en": "middle phalanx of left third toe"
+ },
+ "FMA32646": {
+  "zh": "右第四趾中节趾骨",
+  "en": "middle phalanx of right fourth toe"
+ },
+ "FMA24455": {
+  "zh": "右示指中节指骨",
+  "en": "middle phalanx of right index finger"
+ },
+ "FMA24458": {
+  "zh": "右小指中节指骨",
+  "en": "middle phalanx of right little finger"
+ },
+ "FMA230986": {
+  "zh": "右小趾中节趾骨",
+  "en": "middle phalanx of right little toe"
+ },
+ "FMA24456": {
+  "zh": "右中指中节指骨",
+  "en": "middle phalanx of right middle finger"
+ },
+ "FMA24457": {
+  "zh": "右环指中节指骨",
+  "en": "middle phalanx of right ring finger"
+ },
+ "FMA32642": {
+  "zh": "右第二趾中节趾骨",
+  "en": "middle phalanx of right second toe"
+ },
+ "FMA32644": {
+  "zh": "右第三趾中节趾骨",
+  "en": "middle phalanx of right third toe"
+ },
+ "FMA24501": {
+  "zh": "左足舟骨",
+  "en": "navicular bone of left foot"
+ },
+ "FMA24500": {
+  "zh": "右足舟骨",
+  "en": "navicular bone of right foot"
+ },
+ "FMA10014": {
+  "zh": "第九胸椎",
+  "en": "ninth thoracic vertebra"
+ },
+ "FMA52735": {
+  "zh": "枕骨",
+  "en": "occipital bone"
+ },
+ "FMA43254": {
+  "zh": "左拇趾近节趾骨",
+  "en": "proximal phalanx of left big toe"
+ },
+ "FMA32639": {
+  "zh": "左第四趾近节趾骨",
+  "en": "proximal phalanx of left fourth toe"
+ },
+ "FMA71915": {
+  "zh": "左示指近节指骨",
+  "en": "proximal phalanx of left index finger"
+ },
+ "FMA66791": {
+  "zh": "左小指近节指骨",
+  "en": "proximal phalanx of left little finger"
+ },
+ "FMA32641": {
+  "zh": "左小趾近节趾骨",
+  "en": "proximal phalanx of left little toe"
+ },
+ "FMA71908": {
+  "zh": "左中指近节指骨",
+  "en": "proximal phalanx of left middle finger"
+ },
+ "FMA71916": {
+  "zh": "左环指近节指骨",
+  "en": "proximal phalanx of left ring finger"
+ },
+ "FMA32635": {
+  "zh": "左第二趾近节趾骨",
+  "en": "proximal phalanx of left second toe"
+ },
+ "FMA32637": {
+  "zh": "左第三趾近节趾骨",
+  "en": "proximal phalanx of left third toe"
+ },
+ "FMA65470": {
+  "zh": "左拇指近节指骨",
+  "en": "proximal phalanx of left thumb"
+ },
+ "FMA43253": {
+  "zh": "右拇趾近节趾骨",
+  "en": "proximal phalanx of right big toe"
+ },
+ "FMA32638": {
+  "zh": "右第四趾近节趾骨",
+  "en": "proximal phalanx of right fourth toe"
+ },
+ "FMA24451": {
+  "zh": "右示指近节指骨",
+  "en": "proximal phalanx of right index finger"
+ },
+ "FMA24454": {
+  "zh": "右小指近节指骨",
+  "en": "proximal phalanx of right little finger"
+ },
+ "FMA32640": {
+  "zh": "右小趾近节趾骨",
+  "en": "proximal phalanx of right little toe"
+ },
+ "FMA24452": {
+  "zh": "右中指近节指骨",
+  "en": "proximal phalanx of right middle finger"
+ },
+ "FMA24453": {
+  "zh": "右环指近节指骨",
+  "en": "proximal phalanx of right ring finger"
+ },
+ "FMA32634": {
+  "zh": "右第二趾近节趾骨",
+  "en": "proximal phalanx of right second toe"
+ },
+ "FMA32636": {
+  "zh": "右第三趾近节趾骨",
+  "en": "proximal phalanx of right third toe"
+ },
+ "FMA24450": {
+  "zh": "右拇指近节指骨",
+  "en": "proximal phalanx of right thumb"
+ },
+ "FMA24497": {
+  "zh": "右跟骨",
+  "en": "right calcaneus"
+ },
+ "FMA24446": {
+  "zh": "右头状骨",
+  "en": "right capitate"
+ },
+ "FMA13322": {
+  "zh": "右锁骨",
+  "en": "right clavicle"
+ },
+ "FMA24528": {
+  "zh": "右骰骨",
+  "en": "right cuboid bone"
+ },
+ "FMA8283": {
+  "zh": "右第八肋",
+  "en": "right eighth rib"
+ },
+ "FMA8531": {
+  "zh": "右第十一肋",
+  "en": "right eleventh rib"
+ },
+ "FMA24474": {
+  "zh": "右股骨",
+  "en": "right femur"
+ },
+ "FMA24480": {
+  "zh": "右腓骨",
+  "en": "right fibula"
+ },
+ "FMA8070": {
+  "zh": "右第五肋软骨",
+  "en": "right fifth costal cartilage"
+ },
+ "FMA24472": {
+  "zh": "右第五掌骨",
+  "en": "right fifth metacarpal bone"
+ },
+ "FMA24515": {
+  "zh": "右第五跖骨",
+  "en": "right fifth metatarsal bone"
+ },
+ "FMA8066": {
+  "zh": "右第五肋",
+  "en": "right fifth rib"
+ },
+ "FMA7875": {
+  "zh": "右第一肋软骨",
+  "en": "right first costal cartilage"
+ },
+ "FMA24464": {
+  "zh": "右第一掌骨",
+  "en": "right first metacarpal bone"
+ },
+ "FMA24507": {
+  "zh": "右第一跖骨",
+  "en": "right first metatarsal bone"
+ },
+ "FMA7857": {
+  "zh": "右第一肋",
+  "en": "right first rib"
+ },
+ "FMA7976": {
+  "zh": "右第四肋软骨",
+  "en": "right fourth costal cartilage"
+ },
+ "FMA24470": {
+  "zh": "右第四掌骨",
+  "en": "right fourth metacarpal bone"
+ },
+ "FMA24513": {
+  "zh": "右第四跖骨",
+  "en": "right fourth metatarsal bone"
+ },
+ "FMA7957": {
+  "zh": "右第四肋",
+  "en": "right fourth rib"
+ },
+ "FMA24448": {
+  "zh": "右钩骨",
+  "en": "right hamate"
+ },
+ "FMA16586": {
+  "zh": "右髋骨",
+  "en": "right hip bone"
+ },
+ "FMA23130": {
+  "zh": "右肱骨",
+  "en": "right humerus"
+ },
+ "FMA54737": {
+  "zh": "右下鼻甲",
+  "en": "right inferior nasal concha"
+ },
+ "FMA24523": {
+  "zh": "右中间楔骨",
+  "en": "right intermediate cuneiform bone"
+ },
+ "FMA53645": {
+  "zh": "右泪骨",
+  "en": "right lacrimal bone"
+ },
+ "FMA24525": {
+  "zh": "右外侧楔骨",
+  "en": "right lateral cuneiform bone"
+ },
+ "FMA24437": {
+  "zh": "右月骨",
+  "en": "right lunate"
+ },
+ "FMA53649": {
+  "zh": "右上颌骨",
+  "en": "right maxilla"
+ },
+ "FMA24521": {
+  "zh": "右内侧楔骨",
+  "en": "right medial cuneiform bone"
+ },
+ "FMA53647": {
+  "zh": "右鼻骨",
+  "en": "right nasal bone"
+ },
+ "FMA8364": {
+  "zh": "右第九肋",
+  "en": "right ninth rib"
+ },
+ "FMA53655": {
+  "zh": "右腭骨",
+  "en": "right palatine bone"
+ },
+ "FMA52788": {
+  "zh": "右顶骨",
+  "en": "right parietal bone"
+ },
+ "FMA24486": {
+  "zh": "右髌骨",
+  "en": "right patella"
+ },
+ "FMA24441": {
+  "zh": "右豌豆骨",
+  "en": "right pisiform"
+ },
+ "FMA23464": {
+  "zh": "右桡骨",
+  "en": "right radius"
+ },
+ "FMA24435": {
+  "zh": "右手舟骨",
+  "en": "right scaphoid"
+ },
+ "FMA13395": {
+  "zh": "右肩胛骨",
+  "en": "right scapula"
+ },
+ "FMA7886": {
+  "zh": "右第二肋软骨",
+  "en": "right second costal cartilage"
+ },
+ "FMA24466": {
+  "zh": "右第二掌骨",
+  "en": "right second metacarpal bone"
+ },
+ "FMA24509": {
+  "zh": "右第二跖骨",
+  "en": "right second metatarsal bone"
+ },
+ "FMA7882": {
+  "zh": "右第二肋",
+  "en": "right second rib"
+ },
+ "FMA8248": {
+  "zh": "右第七肋软骨",
+  "en": "right seventh costal cartilage"
+ },
+ "FMA8229": {
+  "zh": "右第七肋",
+  "en": "right seventh rib"
+ },
+ "FMA8194": {
+  "zh": "右第六肋软骨",
+  "en": "right sixth costal cartilage"
+ },
+ "FMA8175": {
+  "zh": "右第六肋",
+  "en": "right sixth rib"
+ },
+ "FMA24482": {
+  "zh": "右距骨",
+  "en": "right talus"
+ },
+ "FMA52738": {
+  "zh": "右颞骨",
+  "en": "right temporal bone"
+ },
+ "FMA8445": {
+  "zh": "右第十肋",
+  "en": "right tenth rib"
+ },
+ "FMA7913": {
+  "zh": "右第三肋软骨",
+  "en": "right third costal cartilage"
+ },
+ "FMA24468": {
+  "zh": "右第三掌骨",
+  "en": "right third metacarpal bone"
+ },
+ "FMA24511": {
+  "zh": "右第三跖骨",
+  "en": "right third metatarsal bone"
+ },
+ "FMA7909": {
+  "zh": "右第三肋",
+  "en": "right third rib"
+ },
+ "FMA24477": {
+  "zh": "右胫骨",
+  "en": "right tibia"
+ },
+ "FMA24443": {
+  "zh": "右大多角骨",
+  "en": "right trapezium"
+ },
+ "FMA23725": {
+  "zh": "右小多角骨",
+  "en": "right trapezoid"
+ },
+ "FMA24439": {
+  "zh": "右三角骨",
+  "en": "right triquetral"
+ },
+ "FMA8533": {
+  "zh": "右第十二肋",
+  "en": "right twelfth rib"
+ },
+ "FMA23467": {
+  "zh": "右尺骨",
+  "en": "right ulna"
+ },
+ "FMA52892": {
+  "zh": "右颧骨",
+  "en": "right zygomatic bone"
+ },
+ "FMA16202": {
+  "zh": "骶骨",
+  "en": "sacrum"
+ },
+ "FMA13073": {
+  "zh": "第二腰椎",
+  "en": "second lumbar vertebra"
+ },
+ "FMA9187": {
+  "zh": "第二胸椎",
+  "en": "second thoracic vertebra"
+ },
+ "FMA12525": {
+  "zh": "第七颈椎",
+  "en": "seventh cervical vertebra"
+ },
+ "FMA9968": {
+  "zh": "第七胸椎",
+  "en": "seventh thoracic vertebra"
+ },
+ "FMA12524": {
+  "zh": "第六颈椎",
+  "en": "sixth cervical vertebra"
+ },
+ "FMA9945": {
+  "zh": "第六胸椎",
+  "en": "sixth thoracic vertebra"
+ },
+ "FMA52736": {
+  "zh": "蝶骨",
+  "en": "sphenoid bone"
+ },
+ "FMA10037": {
+  "zh": "第十胸椎",
+  "en": "tenth thoracic vertebra"
+ },
+ "FMA12521": {
+  "zh": "第三颈椎",
+  "en": "third cervical vertebra"
+ },
+ "FMA13074": {
+  "zh": "第三腰椎",
+  "en": "third lumbar vertebra"
+ },
+ "FMA9209": {
+  "zh": "第三胸椎",
+  "en": "third thoracic vertebra"
+ },
+ "FMA10081": {
+  "zh": "第十二胸椎",
+  "en": "twelfth thoracic vertebra"
+ },
+ "FMA9710": {
+  "zh": "犁骨",
+  "en": "vomer"
+ },
+ "FMA7488": {
+  "zh": "剑突",
+  "en": "xiphoid process"
+ }
+}
