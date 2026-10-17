@@ -7,6 +7,14 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 const BONE = 0xe9dfc9;
 const SELECTED = 0xd9822b;
 
+function post(msg) {
+  if (window.Bones) window.Bones.postMessage(JSON.stringify(msg));
+}
+
+// 任何启动错误（例如手机不支持 WebGL）都报给 Flutter 显示，而不是一直转圈。
+window.addEventListener('error', (e) => post({ type: 'error', message: String(e.message || e.error) }));
+window.addEventListener('unhandledrejection', (e) => post({ type: 'error', message: String(e.reason) }));
+
 const canvas = document.getElementById('view');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -39,17 +47,18 @@ const selectedMaterial = new THREE.MeshStandardMaterial({
 const meshes = [];
 let selected = null;
 let home = null;
+let model = null;
 
-function post(msg) {
-  if (window.Bones) window.Bones.postMessage(JSON.stringify(msg));
-}
-
+// 安卓 WebView 常在视图还是 0×0 时就加载页面，这时不能取景，否则相机位置变成 NaN、
+// 骨架永远不显示；等拿到真实尺寸后再取景。
 function resize() {
   const w = window.innerWidth;
   const h = window.innerHeight;
+  if (!w || !h) return;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  if (model && !home) frame(model);
 }
 
 function frame(object) {
@@ -130,16 +139,17 @@ async function load() {
     if (!o.name || o.name.startsWith('mesh')) o.name = o.parent?.name || o.name;
     meshes.push(o);
   });
-  scene.add(gltf.scene);
+  model = gltf.scene;
+  scene.add(model);
   resize();
-  frame(gltf.scene);
   post({ type: 'ready', count: meshes.length });
 }
 
 window.addEventListener('resize', resize);
+if (window.ResizeObserver) new ResizeObserver(resize).observe(document.body);
 resize();
 renderer.setAnimationLoop(() => {
   controls.update();
   renderer.render(scene, camera);
 });
-load().catch((err) => post({ type: 'error', message: String(err && err.stack || err) }));
+load().catch((err) => post({ type: 'error', message: String((err && err.message) || err) }));
