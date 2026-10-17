@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:taintedview/data/models.dart';
 import 'package:taintedview/data/prefs.dart';
 import 'package:taintedview/data/repository.dart';
 import 'package:taintedview/main.dart';
+import 'package:taintedview/screens/skeleton_screen.dart';
 import 'package:taintedview/widgets/rich_text.dart';
 
 void main() {
@@ -36,7 +39,7 @@ void main() {
     expect(repo.imageAsset(book, '../x/a.jpg'), 'assets/data/books/x/a.jpg');
   });
 
-  testWidgets('书架显示书目', (tester) async {
+  testWidgets('主界面进入图书书架', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(TaintedViewApp(
@@ -44,9 +47,20 @@ void main() {
       settings: ReaderSettings(prefs),
       progress: ProgressStore(prefs),
     ));
+    await tester.pumpAndSettle();
+    for (final t in ['图书', '图片', '视频', '白骨观']) {
+      expect(find.text(t), findsOneWidget);
+    }
+    await tester.tap(find.text('图书'));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 500)));
     await tester.pumpAndSettle();
     expect(find.text('不净观书架'), findsOneWidget);
     expect(find.text('寿康宝鉴'), findsOneWidget);
+  });
+  test('bones.json 每块骨头都有中英文名', () {
+    final names = parseBoneNames(File('assets/skeleton/bones.json').readAsStringSync());
+    expect(names.length, greaterThan(200));
+    expect(names['FMA24486']?.zh, '右髌骨');
+    expect(names.values.where((b) => b.zh.isEmpty || b.en.isEmpty), isEmpty);
   });
 }
