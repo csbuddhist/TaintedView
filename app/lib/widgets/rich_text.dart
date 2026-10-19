@@ -28,3 +28,7 @@ List<InlineSpan> parseInline(
   if (pos < text.length) spans.add(TextSpan(text: text.substring(pos)));
   return spans;
 }
+
+/// 去掉内联标记后的纯文本，例如供朗读使用。
+String plainText(String text) =>
+    text.replaceAllMapped(_inline, (m) => m.group(1) ?? m.group(2)!);

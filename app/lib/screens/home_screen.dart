@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'placeholder_screen.dart';
+import '../data/media.dart';
+import 'media_screens.dart';
 import 'shelf_screen.dart';
 import 'skeleton_screen.dart';
 
@@ -19,15 +20,15 @@ class HomeScreen extends StatelessWidget {
       ),
       _Section(
         title: '图片',
-        subtitle: '敬请期待',
+        subtitle: '自建分类，本地或链接',
         icon: Icons.photo_library_outlined,
-        builder: (_) => const PlaceholderScreen(title: '图片'),
+        builder: (_) => const MediaCategoriesScreen(kind: MediaKind.image),
       ),
       _Section(
         title: '视频',
-        subtitle: '敬请期待',
+        subtitle: '自建分类，本地或链接',
         icon: Icons.video_library_outlined,
-        builder: (_) => const PlaceholderScreen(title: '视频'),
+        builder: (_) => const MediaCategoriesScreen(kind: MediaKind.video),
       ),
       _Section(
         title: '白骨观',
